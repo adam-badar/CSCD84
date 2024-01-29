@@ -72,7 +72,8 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
+
 
 def depthFirstSearch(problem: SearchProblem):
     """
@@ -89,11 +90,11 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    #initialize stack
+
     stk = util.Stack()
     path = []
     visited = set()
-    #push a tuple onto stack
+
     stk.push((problem.getStartState(), []))
     while not stk.isEmpty():
         stk_element = stk.pop()
@@ -106,7 +107,8 @@ def depthFirstSearch(problem: SearchProblem):
             successors = problem.getSuccessors(curr_node)
             for i in range(len(successors)):
                 if successors[i][0] not in visited:
-                    stk.push((successors[i][0], (curr_path + [successors[i][1]])))
+                    new_path = curr_path + [successors[i][1]]
+                    stk.push((successors[i][0], new_path))
     return path
 
 
@@ -116,10 +118,8 @@ def breadthFirstSearch(problem: SearchProblem):
     queue = util.Queue()
     path = []
     visited = []
-    
     # push a tuple onto the queue
     queue.push((problem.getStartState(), []))
-    
     while not queue.isEmpty():
         # pop an element from the queue
         queue_element = queue.pop()
@@ -152,83 +152,55 @@ def breadthFirstSearch(problem: SearchProblem):
 
     return path
 
+
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
     pq = util.PriorityQueue()
     visited = set()
     pq.push((problem.getStartState(), [], 0), 0)
     while not pq.isEmpty():
-        pq_element = pq.pop()
-        curr_node = pq_element[0]
-        curr_path = pq_element[1]
-        curr_cost = pq_element[2]
-        if (problem.isGoalState(curr_node)):
+        curr_node, curr_path, curr_cost = pq.pop()
+        if problem.isGoalState(curr_node):
             return curr_path
         if curr_node not in visited:
             visited.add(curr_node)
-            successors = problem.getSuccessors(curr_node)
-            for successor, action, step_cost in successors:
+            for successor, action, step_cost in problem.getSuccessors(curr_node):
                 if successor not in visited:
-                    next_path = curr_path + [action]
-                    next_cost = curr_cost + step_cost
-                    pq.push((successor, next_path, next_cost), next_cost)
+                    pq.push((successor, curr_path + [action], curr_cost + step_cost), curr_cost + step_cost)
     return []
+
 
 def nullHeuristic(state, problem=None):
     """
-    A heuristic function estimates the cost from the current state to the nearest
-    goal in the provided SearchProblem.  This heuristic is trivial.
+    A heuristic function estimates the cost from the current state to the
+    nearest goal in the provided SearchProblem.
+    This heuristic is trivial.
     """
     return 0
 
-def manhattanHeuristic(state, problem: SearchProblem):
-    return 
 
-def aStarSearch(problem: SearchProblem, heuristic=manhattanHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
+def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
+    """Search the node that has the lowest combined cost and heuristic first.
+    """
     "*** YOUR CODE HERE ***"
     pq = util.PriorityQueue()
     visited = []
     pq.push((problem.getStartState(), [], 0), 0)
+
     while not pq.isEmpty():
-        pq_element = pq.pop()
-        curr_node = pq_element[0]
-        curr_path = pq_element[1]
-        curr_cost = pq_element[2]
-        if (problem.isGoalState(curr_node)):
+        curr_node, curr_path, curr_cost = pq.pop()
+
+        if problem.isGoalState(curr_node):
             return curr_path
-        # if curr_node not in visited:
-        #     visited.add(curr_node)
-        #     successors = problem.getSuccessors(curr_node)
-        #     for successor, action, step_cost in successors:
-        #         if successor not in visited:
-        #             next_path = curr_path + [action]
-        #             next_cost = curr_cost + step_cost
-        #             pq.push((successor, next_path, next_cost), next_cost + heuristic(successor, problem))
+
         if curr_node not in visited:
             visited.append(curr_node)
-            successors = problem.getSuccessors(curr_node)
-            for i in range(len(successors)):
-                successor_state = successors[i][0]
-                states_in_queue = []
-                for state in pq.heap:
-                    states_in_queue.append(state[0])
-                successor_in_queue = False
-                for state in states_in_queue:
-                    if successor_state == state:
-                        successor_in_queue = True
-                        break
-                successor_in_visited = False
-                for state in visited:
-                    if successor_state == state:
-                        successor_in_visited = True
-                        break
-                if successor_in_visited or successor_in_queue:
-                    continue
-                next_path = curr_path + [successors[i][1]]
-                next_cost = curr_cost + successors[i][2]
-                pq.push((successors[i][0], next_path, next_cost ), next_cost + heuristic(successors[i][0], problem))
+            for successor_state, action, step_cost in problem.getSuccessors(curr_node):
+                next_path = curr_path + [action]
+                next_cost = curr_cost + step_cost
+                heuristic_cost = heuristic(successor_state, problem)
+                pq.push((successor_state, next_path, next_cost), next_cost + heuristic_cost)
+
     return []
 
 
