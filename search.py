@@ -118,38 +118,19 @@ def breadthFirstSearch(problem: SearchProblem):
     queue = util.Queue()
     path = []
     visited = []
-    # push a tuple onto the queue
     queue.push((problem.getStartState(), []))
     while not queue.isEmpty():
-        # pop an element from the queue
         queue_element = queue.pop()
         curr_node = queue_element[0]
         curr_path = queue_element[1]
         if problem.isGoalState(curr_node):
             return curr_path
-
         if curr_node not in visited:
             visited.append(curr_node)
             successors = problem.getSuccessors(curr_node)
-            for i in range(len(successors)):
-                successor_state = successors[i][0]
-                states_in_queue = []
-                for state in queue.list:
-                    states_in_queue.append(state[0])
-                successor_in_queue = False
-                for state in states_in_queue:
-                    if successor_state == state:
-                        successor_in_queue = True
-                        break
-                successor_in_visited = False
-                for state in visited:
-                    if successor_state == state:
-                        successor_in_visited = True
-                        break
-                if successor_in_visited or successor_in_queue:
-                    continue
-                queue.push((successor_state, (curr_path + [successors[i][1]])))
-
+            for successor_state, action, junk in successors:
+                if successor_state not in visited and successor_state not in [state[0] for state in queue.list]:
+                    queue.push((successor_state, curr_path + [action]))
     return path
 
 
