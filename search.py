@@ -97,18 +97,16 @@ def depthFirstSearch(problem: SearchProblem):
 
     stk.push((problem.getStartState(), []))
     while not stk.isEmpty():
-        stk_element = stk.pop()
-        curr_node = stk_element[0]
-        curr_path = stk_element[1]
+        curr_node, curr_path = stk.pop()
         if problem.isGoalState(curr_node):
             return curr_path
         if curr_node not in visited:
             visited.add(curr_node)
             successors = problem.getSuccessors(curr_node)
-            for i in range(len(successors)):
-                if successors[i][0] not in visited:
-                    new_path = curr_path + [successors[i][1]]
-                    stk.push((successors[i][0], new_path))
+            for successor_state, action, _ in successors:
+                if successor_state not in visited:
+                    new_path = curr_path + [action]
+                    stk.push((successor_state, new_path))
     return path
 
 
@@ -120,9 +118,7 @@ def breadthFirstSearch(problem: SearchProblem):
     visited = []
     queue.push((problem.getStartState(), []))
     while not queue.isEmpty():
-        queue_element = queue.pop()
-        curr_node = queue_element[0]
-        curr_path = queue_element[1]
+        curr_node, curr_path = queue.pop()
         if problem.isGoalState(curr_node):
             return curr_path
         if curr_node not in visited:
@@ -170,10 +166,8 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
 
     while not pq.isEmpty():
         curr_node, curr_path, curr_cost = pq.pop()
-
         if problem.isGoalState(curr_node):
             return curr_path
-
         if curr_node not in visited:
             visited.append(curr_node)
             for successor_state, action, step_cost in problem.getSuccessors(curr_node):
